@@ -12,6 +12,10 @@ Authorization:
 
 Configure `EDGE_EVER_AUTH_PASSWORD` under the Worker's **Settings -> Variables and Secrets** as a runtime Secret; do not copy the password into Builds variables. `deploy:cloudflare-builds` reuses that Secret and verifies its presence after deployment.
 
+Keep the tracked `wrangler.toml` unchanged. Ordinary deployments use D1 `edgeever`, R2 `edgeever-resources`, and username `admin`. Optional non-secret instance settings such as `EDGE_EVER_AUTH_USERNAME`, `EDGE_EVER_WORKER_NAME`, `EDGE_EVER_D1_DATABASE_NAME`, `EDGE_EVER_R2_BUCKET_NAME`, and custom routing belong under **Settings -> Builds -> Variables and secrets**. Workers Builds variables are available to the build command, not to the running Worker; the deploy command uses them to generate a temporary Wrangler configuration. Passwords and credentials remain runtime Secrets.
+
+Backward compatibility is automatic: without explicit R2 or username Builds variables, an upgrade inspects the active production Worker versions and preserves their existing `RESOURCES` bucket and administrator username. A brand-new Worker uses the standard defaults.
+
 ## Updates and troubleshooting
 
 - A push to `main` builds, applies D1 migrations, deploys, and verifies EdgeEver.

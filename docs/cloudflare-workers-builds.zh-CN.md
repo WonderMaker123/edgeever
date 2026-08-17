@@ -12,6 +12,10 @@
 
 `EDGE_EVER_AUTH_PASSWORD` 应配置在 Worker 的 **Settings -> Variables and Secrets** 中，作为运行时 Secret；不要把密码复制到 Builds 的构建变量。`deploy:cloudflare-builds` 会复用该 Secret，并在部署后验证它是否存在。
 
+受版本控制的 `wrangler.toml` 必须保持不变。普通部署使用 D1 `edgeever`、R2 `edgeever-resources` 和用户名 `admin`。`EDGE_EVER_AUTH_USERNAME`、`EDGE_EVER_WORKER_NAME`、`EDGE_EVER_D1_DATABASE_NAME`、`EDGE_EVER_R2_BUCKET_NAME` 与自定义路由等可选非敏感实例参数，应放在 **Settings -> Builds -> Variables and secrets**。Workers Builds 变量只对构建命令可见，不会直接成为 Worker 运行时变量；部署命令会用它们生成临时 Wrangler 配置。密码及其他凭据始终属于运行时 Secret。
+
+旧版兼容会自动完成：未显式设置 R2 或用户名 Builds 变量时，升级会检查正在承载生产流量的 Worker 版本，并保留其已有的 `RESOURCES` 存储桶和管理员用户名；全新 Worker 才使用标准默认值。
+
 ## 更新与排错
 
 - `main` 推送会自动构建、执行 D1 migration、部署并验证。
