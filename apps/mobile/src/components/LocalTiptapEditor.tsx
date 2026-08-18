@@ -2871,6 +2871,21 @@ const getEditorStyles = (theme: "light" | "dark", options?: { viewer?: boolean }
     border-spacing: 0;
     table-layout: fixed;
   }
+  /* Let compact tables use the full content width. The fallback on
+     .tableWrapper remains the minimum column budget for 5+ columns, so only
+     wider tables scroll. TipTap always renders one <col> per logical column. */
+  .edgeever-editor-content table:has(> colgroup > col:first-child:last-child) {
+    --mobile-table-column-width: 100cqi;
+  }
+  .edgeever-editor-content table:has(> colgroup > col:first-child:nth-last-child(2)) {
+    --mobile-table-column-width: 50cqi;
+  }
+  .edgeever-editor-content table:has(> colgroup > col:first-child:nth-last-child(3)) {
+    --mobile-table-column-width: calc(100cqi / 3);
+  }
+  .edgeever-editor-content table:has(> colgroup > col:first-child:nth-last-child(4)) {
+    --mobile-table-column-width: 25cqi;
+  }
   /* Override TipTap/desktop col widths with the mobile equal-ish column budget. */
   .edgeever-editor-content table col {
     width: var(--mobile-table-column-width) !important;

@@ -47,7 +47,7 @@
      - 使用用户名 `admin` 和 `EDGE_EVER_AUTH_PASSWORD` 验证登录 API；若高级部署设置了 `EDGE_EVER_AUTH_USERNAME` 构建变量，则改用对应用户名。
 
 7. **验证上游更新通道**
-   - 在 Fork 的 **Actions** 中手动运行一次 **Update deployed EdgeEver**。
+   - 在 Fork 的 **Actions** 中手动运行一次 **Update deployed EdgeEver**。即使 Fork 已对齐，手动运行也会重新发布所选版本，确保 Cloudflare 收到新的构建事件。
    - 打开 Job **Summary**，确认 Fork mode 为 `mirror`，并显示上游目标（stable Release 或 edge `main`），以及「已发布更新」或明确的「已对齐」结果。
    - 若发生了 push，确认 Cloudflare **Deployments** 构建的是对应的 `main` commit。
    - 普通部署 Fork 不应修改部署文件，日常升级也不要依赖 GitHub **Sync fork**；本工作流就是唯一需要的同步路径。只有旧 Fork 必须取得新版更新工作流本身时，才使用一次 **Sync fork**，之后继续使用 **Update deployed EdgeEver**。

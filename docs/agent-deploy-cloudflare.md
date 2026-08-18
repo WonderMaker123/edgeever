@@ -47,7 +47,7 @@ This document defines the standard operating specifications and conventions for 
      - Verify login API using username `admin` and `EDGE_EVER_AUTH_PASSWORD`. If an advanced deployment sets the `EDGE_EVER_AUTH_USERNAME` Builds variable, use that username instead.
 
 7. **Verify Upstream Update Channel**
-   - Manually trigger **Update deployed EdgeEver** once in the Fork's **Actions** tab.
+   - Manually trigger **Update deployed EdgeEver** once in the Fork's **Actions** tab. A manual run republishes the selected version even when the Fork is already aligned, ensuring Cloudflare receives a fresh build event.
    - Open the job **Summary** and confirm it reports Fork mode `mirror`, the upstream target (stable Release or edge `main`), and either an update publish or an explicit *already aligned* result.
    - Confirm Cloudflare **Deployments** builds the published `main` commit when a push occurred.
    - Do not edit deployment files or rely on GitHub **Sync fork** for routine upgrades; the workflow is the only synchronization path needed by a normal deployment Fork. Use **Sync fork** once only when an old Fork must receive a newer updater workflow itself, then return to **Update deployed EdgeEver**.

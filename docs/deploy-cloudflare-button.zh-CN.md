@@ -120,8 +120,8 @@ EDGE_EVER_UPDATE_CHANNEL=edge
 - **首次构建失败**：请检查 Cloudflare 控制台中 Worker 的 **Deployments** 构建日志，确认标准资源名称严格为 `edgeever` 与 `edgeever-resources`，并确认 Workers Builds API Token 具有 D1 读取和编辑权限。如有意使用其他 D1 数据库，请设置 `EDGE_EVER_D1_DATABASE_NAME`；仅在自动查询 UUID 不可用时再添加 `EDGE_EVER_D1_DATABASE_ID`。
 - **无法同步上游更新**：
   1. 打开 Fork 的 **Actions**，启用 **Update deployed EdgeEver**（公共 Fork 上定时任务默认关闭）。
-  2. 手动 **Run workflow** 一次，打开 Job **Summary**：会写明上游目标版本，以及本次是「已更新」「已对齐」还是失败。
-  3. 若绿色成功且 Summary 为 *Already on upstream target* / 已对齐，表示 Git 已是该通道目标版本，不是静默故障。若网站仍旧，请对照 Cloudflare **Deployments** 的 commit SHA，或勾选 **force_redeploy** 再跑一次。
+  2. 手动 **Run workflow** 一次，打开中英双语 Job **Summary**：会分别展示上游目标、Git 发布结果、部署触发状态，以及线上部署是否已经验证。
+  3. 若定时运行绿色成功且 Summary 为 *Already on upstream target* / 已对齐，表示 Git 已是该通道目标版本，不是静默故障。手动运行在已对齐时会自动重新发布所选版本；若此后网站仍旧，请对照 Cloudflare **Deployments** 的 commit SHA。
   4. 日常升级请优先用本工作流，而不是 GitHub **Sync fork**。
   5. 若旧版更新器报错 `without workflows permission`，请使用仓库所有者身份执行一次 **Sync fork**，然后重新运行 **Update deployed EdgeEver**。新版更新器会保留 `.github/workflows/**`，后续产品更新不会再触发这项权限限制。
 - **Git 已 push 但网站没变**：确认 Workers Builds 是否针对新的 `main` SHA 构建。可选：添加仓库 Secret `EDGE_EVER_CLOUDFLARE_DEPLOY_HOOK_URL`，让工作流在 publish 后调用 Deploy Hook。

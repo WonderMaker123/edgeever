@@ -120,8 +120,8 @@ Passwords and other credentials remain Worker runtime Secrets and must never be 
 - **Initial build failed**: Check the Worker **Deployments** log. Verify that the standard resources are named exactly `edgeever` and `edgeever-resources`, and that the Workers Builds API token has D1 read/edit permission. For an intentionally different D1 database, set `EDGE_EVER_D1_DATABASE_NAME`; add `EDGE_EVER_D1_DATABASE_ID` only if automatic UUID discovery is unavailable.
 - **Updates not syncing**:
   1. On the Fork **Actions** tab, enable **Update deployed EdgeEver** (scheduled workflows are off by default on public forks).
-  2. Run it once with **Run workflow**. Open the job **Summary**: it states the upstream target version and whether the fork was updated, already aligned, or failed.
-  3. A green run with *Already on upstream target* means Git already matches that channel — not a broken skip. If the live site is still old, check Cloudflare **Deployments** commit SHA, or re-run with **force_redeploy**.
+  2. Run it once with **Run workflow**. Open the bilingual job **Summary**: it separately reports the upstream target, Git publish result, deployment trigger, and whether the live deployment was verified.
+  3. A scheduled green run with *Already on upstream target* means Git already matches that channel — not a broken skip. A manual run automatically republishes the selected version when already aligned. If the live site is still old afterward, compare the Cloudflare **Deployments** commit SHA.
   4. Prefer this workflow over GitHub **Sync fork** for day-to-day upgrades.
   5. If an old updater fails with `without workflows permission`, use **Sync fork** once as the repository owner, then re-run **Update deployed EdgeEver**. The current updater preserves `.github/workflows/**`, so later product updates do not hit this permission boundary.
 - **Push succeeded but site unchanged**: Confirm Workers Builds ran for the new `main` SHA. Optionally add repository secret `EDGE_EVER_CLOUDFLARE_DEPLOY_HOOK_URL` so the workflow can call a Deploy Hook after publish.

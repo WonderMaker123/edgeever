@@ -14,7 +14,10 @@ import {
   deploymentPrompts,
   manualDeploymentCopy,
 } from "../apps/site/src/deployment-prompts";
-import { decideUpstreamSync } from "../scripts/upstream-sync-plan.mjs";
+import {
+  decideUpstreamSync,
+  shouldRedeploy,
+} from "../scripts/upstream-sync-plan.mjs";
 import { repositoryWranglerConfigError } from "../scripts/wrangler-runner.mjs";
 
 const repositoryRoot = resolve(import.meta.dir, "..");
@@ -374,7 +377,8 @@ describe("Cloudflare deployment entrypoints", () => {
     expect(workflow).toContain("EDGE_EVER_UPDATE_CHANNEL");
     expect(workflow).toContain("stable)");
     expect(workflow).toContain("edge)");
-    expect(workflow).toContain("force_redeploy");
+    expect(workflow).toContain("FORCE_REDEPLOY: ${{ github.event_name == 'workflow_dispatch' }}");
+    expect(workflow).not.toContain("force_redeploy:");
     expect(workflow).toContain("bun run db:migrate:local");
     expect(bunConfig).toContain('pathIgnorePatterns = ["tests/e2e/**"]');
     expect(scripts.test).toBe("bun test --path-ignore-patterns='tests/e2e/**'");
@@ -392,6 +396,15 @@ describe("Cloudflare deployment entrypoints", () => {
     expect(workflow).toContain("already_on_target");
     expect(workflow).toContain("fork_mode=mirror");
     expect(workflow).toContain("GITHUB_STEP_SUMMARY");
+    expect(workflow).toContain("name: Sync Fork and trigger deployment");
+    expect(workflow).toContain("name: Report result / 输出结果");
+    expect(workflow).toContain("::notice title=Manual redeploy / 手动重新部署");
+    expect(workflow).toContain("PUBLISH_OUTCOME: ${{ steps.publish.outcome }}");
+    expect(workflow).toContain("DEPLOY_TRIGGER_OUTCOME: ${{ steps.deploy.outcome }}");
+    expect(workflow).toContain("| Git publish / Git 发布 |");
+    expect(workflow).toContain("| Deployment trigger / 部署触发 |");
+    expect(workflow).toContain("| Live deployment / 线上部署 |");
+    expect(workflow).toContain("Not verified by this workflow / 本工作流未验证");
     expect(workflow).toContain("EDGE_EVER_CLOUDFLARE_DEPLOY_HOOK_URL");
     expect(workflow).toContain("EDGE_EVER_PRESERVE_FORK_CHANGES");
     expect(workflow).toContain("PRESERVE_FORK_CHANGES");
@@ -421,22 +434,33 @@ describe("Cloudflare deployment entrypoints", () => {
     }
   });
 
-  test("keeps a forced-redeploy commit on the deploy-mirror update path", () => {
+  test("republishes an already-aligned deploy mirror when redeploy is requested", () => {
     expect(
       decideUpstreamSync({
-        contentMatchesTarget: false,
-        forceRedeploy: false,
-        headEqualsTarget: false,
-        headIsAncestorOfTarget: false,
+        contentMatchesTarget: true,
+        forceRedeploy: true,
+        headEqualsTarget: true,
+        headIsAncestorOfTarget: true,
         preserveForkChanges: false,
-        targetIsAncestorOfHead: false,
+        targetIsAncestorOfHead: true,
       }),
     ).toEqual({
-      alignMode: "snapshot",
-      reason: "deploy_mirror_reset",
-      republishOnly: false,
-      updateRequired: true,
+      alignMode: "none",
+      reason: "already_on_target",
+      republishOnly: true,
+      updateRequired: false,
     });
+  });
+
+  test("manual dispatch redeploys through an older Fork workflow", () => {
+    expect(shouldRedeploy({
+      eventName: "workflow_dispatch",
+      forceRedeploy: false,
+    })).toBe(true);
+    expect(shouldRedeploy({
+      eventName: "schedule",
+      forceRedeploy: false,
+    })).toBe(false);
   });
 
   test("snapshots a deploy mirror that moved ahead of the stable release", () => {
